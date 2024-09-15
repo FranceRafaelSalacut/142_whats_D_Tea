@@ -1,0 +1,16 @@
+for:
+initializer: iters = 10
+condition: iters<n+10
+update: iters+=2
+for statements:
+if:
+condition: iters%8 == 0
+if statements:
+cout<<iters<<endl
+cout<<iters + 8<<endl
+for statements continued:
+counter++;
+sum = sum + iters
+statements:
+sum=0
+sum++;

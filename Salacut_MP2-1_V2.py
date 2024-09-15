@@ -2,6 +2,8 @@
 ONLINE RESOURCES
 
 https://builtin.com/software-engineering-perspectives/python-substring-indexof
+https://www.w3resource.com/python-exercises/string/python-data-type-string-exercise-27.php
+https://www.mygreatlearning.com/blog/python-string-split-method/#:~:text=By%20using%20the%20newline%20character,the%20string%20into%20separate%20lines.&text=In%20this%20example%2C%20the%20string%20text%20contains%20three%20lines%20separated,creates%20a%20list%20of%20lines.
 
 
 '''
@@ -30,7 +32,7 @@ def var_name(str:str):
     for char in str:
         if char == "+":
             space+=1
-        if char == " ":
+        if char == " " or char == ";":
             if temp.strip() and not space:
                 break
             elif space > 0:
@@ -42,6 +44,8 @@ def test(x,y):
     #print(f"{x} on {y}")
     pass
 
+def output(str:str):
+    print(tw.dedent(str.replace(";","")))
 
 
 def tokenize(str:str) -> list:
@@ -70,7 +74,7 @@ def tokenize(str:str) -> list:
             STATE = FOR
             skip = 2 if "{" in line else 1
             content = line[line.index("(")+1 : line.index(")")]
-            content = content.split(";")
+            content = content.split(":")
             equals = content[0].index("=")
             print("for:")
             print("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
@@ -83,26 +87,31 @@ def tokenize(str:str) -> list:
             if STATE == STATEMENT:
                 STATE = STATEMENT_PRINT
                 print("statements:")
-            print(tw.dedent(line.replace(";","")))
+            if skip == 1: 
+                skip = 0
+                if STATE == IF_IN_FOR:
+                    STATE = FOR
+                    print("for statements continued:")
+                else:
+                    STATE = STATEMENT
+            print(tw.dedent(line).replace(";", ""))
         
         # checking if there is a varibale assignment
         elif "=" in line:
             if STATE == STATEMENT:
                 STATE = STATEMENT_PRINT
                 print("statements:")
+            if skip == 1: 
+                skip = 0
+                if STATE == IF_IN_FOR:
+                    STATE = FOR
+                    print("for statements continued:")
+                else:
+                    STATE = STATEMENT
             for index,token in enumerate(line):
                 if token == "=":
                     temp = var_name(reversed(line[:index])) + assignment(line[index:])
                     print(''.join(temp))
-
-        # checking for an end of conditional statement
-        elif skip == 1: 
-            skip = 0
-            if STATE == IF_IN_FOR:
-                STATE = FOR
-                print("for statements continued:")
-            else:
-                STATE = STATEMENT
 
          # checking for an end of conditional statement
         elif "}" in line: 
@@ -113,39 +122,45 @@ def tokenize(str:str) -> list:
             else:
                 STATE = STATEMENT
         else:
-            print(line)
+            if "int" in line or "float" in line or "double" in line or "bool" in line:
+                continue
+            if STATE == STATEMENT:
+                STATE = STATEMENT_PRINT
+                print("statements:")
+            print(tw.dedent(line).replace(";",""))
             test("none", line)
 
-        
 
-
-
-def output(str:str) -> None:
-    if statements:
-        print("statements:")
-        for line in statements:
-            print(line)
-
-    if if_statements:
-        print("if:")
-        for line in if_statements:
-            print(line)
-            
-    if for_loop:
-        print("for:")
-        for line in for_loop:
-            print(line)
 
 def main():
     num = int(input())
 
     lines = []
     for x in range(0, num):
-        lines.append(input())
+        line = input()
+        #formatting the code correctly for the one liners. 
+        if "for" in line:
+            temp = line[line.index("(")+1 : line.index(")")]
+            temp2 = temp.replace(";", ":")
+            line = line.replace(temp, temp2)
 
-    #result = tokenize(lines)
-    #output(result)
+        if ";" in line:
+            line = line.replace(";", ";\n")
 
+        if "){" in line:
+            line = line.replace("){", "){\n")
+        elif ")" in line:
+            line = line.replace(")", ")\n")
+
+        if "}" in line:
+            line = line.replace("}", "\n}")
+
+        
+        #removing whitelines and empty strings
+        line = line.split("\n")
+        for text in line:
+            if text and text.strip():
+                lines.append(text)
+                
     tokenize(lines)
-
 main()
