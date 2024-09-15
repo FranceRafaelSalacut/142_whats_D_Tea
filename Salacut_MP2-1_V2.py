@@ -5,15 +5,16 @@ https://builtin.com/software-engineering-perspectives/python-substring-indexof
 
 
 '''
+import textwrap as tw
+
 # doin states here
 STATEMENT = 1
-IF = 2
-IF_ELSE = 3
-FOR = 4
+STATEMENT_PRINT = 2
+IF = 3
+IF_ELSE = 4
+FOR = 5
+IF_IN_FOR = 6
 memory = []
-statements = []
-if_statements = []
-for_loop = []
 
 def assignment(str:str):
     temp = ""
@@ -48,72 +49,74 @@ def tokenize(str:str) -> list:
     STATE = STATEMENT
     skip = 0
 
-    print("\n\n")
     for line in str:
         # checking for an if statement
         if "if" in line:
-            test("if", line)
-            STATE = IF
-            array = if_statements
+            if STATE == FOR:
+                STATE = IF_IN_FOR
+            else:
+                STATE = IF
             skip = 2 if "{" in line else 1
-            array.append("condition: " + line[line.index("(")+1 : line.index(")")])
-            array.append("if statements:")
+            print("if:")
+            print("condition: " + line[line.index("(")+1 : line.index(")")])
+            print("if statements:")
 
         elif "else" in line:
-            test("else", line)
             STATE = IF_ELSE
-            array = if_statements
             skip = 2 if "{" in line else 1
-            array.append("else statements:")
+            print("else statements:")
         
         elif "for" in line:
-            test("for", line)
             STATE = FOR
-            array = for_loop
             skip = 2 if "{" in line else 1
             content = line[line.index("(")+1 : line.index(")")]
             content = content.split(";")
             equals = content[0].index("=")
-            array.append("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
-            array.append("condition:" + content[1]) 
-            array.append("update:" +  content[2])
-            array.append("for statements:")
+            print("for:")
+            print("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
+            print("condition:" + content[1]) 
+            print("update:" +  content[2])
+            print("for statements:")
 
-        # checking if there is a print statement
-        elif "cin" in line:
-            test("cin", line)
-            array.append(line.replace(";",""))
+        # checking if there is a print statement or input statement
+        elif "cin" in line or "cout" in line:
+            if STATE == STATEMENT:
+                STATE = STATEMENT_PRINT
+                print("statements:")
+            print(tw.dedent(line.replace(";","")))
         
-        elif "cout" in line:
-            test("cout", line)
-            array.append(line.replace(";",""))
-
         # checking if there is a varibale assignment
         elif "=" in line:
-            test("=", line)
+            if STATE == STATEMENT:
+                STATE = STATEMENT_PRINT
+                print("statements:")
             for index,token in enumerate(line):
                 if token == "=":
                     temp = var_name(reversed(line[:index])) + assignment(line[index:])
-                    array.append(''.join(temp))
+                    print(''.join(temp))
 
         # checking for an end of conditional statement
         elif skip == 1: 
-            test("skip1", line)
             skip = 0
-            STATE = STATEMENT
-            array = statements
+            if STATE == IF_IN_FOR:
+                STATE = FOR
+                print("for statements continued:")
+            else:
+                STATE = STATEMENT
 
          # checking for an end of conditional statement
         elif "}" in line: 
-            test("skip2", line)
             skip = 0
-            STATE = STATEMENT
-            array = statements
+            if STATE == IF_IN_FOR:
+                STATE = FOR
+                print("for statements continued:")
+            else:
+                STATE = STATEMENT
         else:
+            print(line)
             test("none", line)
 
-
-    return(array)
+        
 
 
 
@@ -140,7 +143,9 @@ def main():
     for x in range(0, num):
         lines.append(input())
 
-    result = tokenize(lines)
-    output(result)
+    #result = tokenize(lines)
+    #output(result)
+
+    tokenize(lines)
 
 main()
