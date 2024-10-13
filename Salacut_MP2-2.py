@@ -54,6 +54,9 @@ def print_statements(STATE, tokenized, line):
         tokenized[STATE].append(''.join(line).replace(";","").replace(" ",""))
     for index,token in enumerate(line):
         if token == "=":
+            if line.count("=") > 1:
+                tokenized[STATE].append(''.join(line))
+                return
             temp = var_name(reversed(line[:index])) + assignment(line[index:])
             #print(f"ff{STATE}")
             #print(''.join(temp))
@@ -91,9 +94,9 @@ def tokenize(str:str) -> dict:
                 STATE = IF
             skip = 2 if "{" in line else 1
             #print("if:")
-            #print("condition: " + line[line.index("(")+1 : line.index(")")])
+            tokenized[STATE].append("condition: " + line[line.index("(")+1 : line.index(")")])
             #print("if statements:")
-            tokenized[STATE].append(line[line.index("(")+1 : line.index(")")])
+            #tokenized[STATE].append(line[line.index("(")+1 : line.index(")")])
             CONDITION_COUNT+=1
 
         elif "else" in line:
@@ -173,7 +176,7 @@ def tokenize(str:str) -> dict:
     return tokenized
 
 def operator_count(string, count):
-    ops = ["+", "-", "*", "/"]
+    ops = ["+", "-", "*", "/", "="]
     itertr = ["+=","-=", "*=", "/=", "++", "--"]
     for itr in itertr:
         if itr in string:
@@ -206,7 +209,7 @@ def count_T(token):
         if "+=" in x or "-=" in x or "--" in x or "++" in x:
             count+=1
         elif "=" in x:
-            count+=1
+            #count+=1
             if re.findall(r'-\s*-\d+|-\d+', x):
                 count-=1
             count = operator_count(x, count)
@@ -220,26 +223,29 @@ def count_T(token):
     if if_len > else_len:
         for x in If:
             #print(x)
-            if "+=" in x or "-=" in x or "--" in x or "++" in x:
+            if "condition" in x:
                 count+=1
-            elif ">" in x or "<" in x or ">=" in x or "<=" in x:
-                count+=1
-            elif "=" in x:
-                count+=1
-                if re.findall(r'-\s*-\d+|-\d+', x):
-                    count-=1
-                count = operator_count(x, count)
-            elif "cin" in x or "cout" in x:
-                count+=1
-            #print(f"count = {count}")
+            else:
+                if "+=" in x or "-=" in x or "--" in x or "++" in x:
+                    count+=1
+                elif ">" in x or "<" in x or ">=" in x or "<=" in x:
+                    count+=1
+                elif "=" in x:
+                    #count+=1
+                    if re.findall(r'-\s*-\d+|-\d+', x):
+                        count-=1
+                    count = operator_count(x, count)
+                elif "cin" in x or "cout" in x:
+                    count+=1
+                #print(f"count = {count}")
     else:
         count+=CONDITION_COUNT
         for x in If_else:
             #print(x)
             if "+=" in x or "-=" in x or "--" in x or "++" in x:
-                count+=1
+                ount+=1
             elif "=" in x:
-                count+=1
+                #count+=1
                 if re.findall(r'-\s*-\d+|-\d+', x):
                     count-=1
                 count = operator_count(x, count)
@@ -287,7 +293,7 @@ def count_T(token):
                 inner_loop_count+=1
                 inner_loop_count = operator_count(x, inner_loop_count)
             elif "=" in x:
-                inner_loop_count+=1
+                #inner_loop_count+=1
                 if re.findall(r'-\s*-\d+|-\d+', x):
                     inner_loop_count-=1
                 inner_loop_count = operator_count(x, inner_loop_count)
