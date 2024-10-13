@@ -171,7 +171,10 @@ def tokenize(str:str) -> dict:
 
 def operator_count(string, count):
     ops = ["+", "-", "*", "/"]
-
+    itertr = ["+=","-=", "*=", "/=", "++", "--"]
+    for itr in itertr:
+        if itr in string:
+            string = string.replace(itr,"")
     for op in ops:
         if string.count(op):
             count+=string.count(op)
@@ -185,6 +188,7 @@ def count_T(token):
     n_value = True
     i = 0
     n = 0
+    log = 0
     statements = token[STATEMENT]
     If = token[IF]
     If_else = token[IF_ELSE]
@@ -263,10 +267,14 @@ def count_T(token):
                 
         elif "update" in x:
             inner_loop_count+=1
+            if "*=" in x or "/=" in x:
+                log = get_assignment(x)
+                i = 0 
         else:
             #print(x)
-            if "+=" in x or "-=" in x or "--" in x or "++" in x:
+            if "+=" in x or "-=" in x or "--" in x or "++" in x or "*=" in x or "/=" in x:
                 inner_loop_count+=1
+                inner_loop_count = operator_count(x, inner_loop_count)
             elif "=" in x:
                 inner_loop_count+=1
                 if re.findall(r'-\s*-\d+|-\d+', x):
@@ -276,12 +284,27 @@ def count_T(token):
                 inner_loop_count+=1
             #print(f"count = {count}")
 
-    #print(f"{inner_loop_count} -- {outer_loop_count} -- {i} -- {n}")
+    #print(f"{inner_loop_count} -- {outer_loop_count} -- {i} -- {n} -- {count} -- {log}")
 
     if n_value:
-        formula1 = (n-i)+1
-        if not formula1:
-            return f"T(n) = {inner_loop_count}n + {outer_loop_count}"
+        if not log:
+            formula1 = (n-i)+1
+            if not formula1:
+                return f"T(n) = {inner_loop_count}n + {outer_loop_count}"
+            else:
+                formula2 = inner_loop_count * formula1
+                formula2 = formula2 + outer_loop_count + count
+
+                sign = "+"
+                if formula2 < 0:
+                    sign = "-"
+                    formula2 = formula2 * -1
+
+                return f"T(n) = {inner_loop_count}n {sign} {formula2}"
+        else:
+            formula1 = (n-i+1)
+            formula2 = (inner_loop_count*formula1) + outer_loop_count + count
+            return f"T(n) = {inner_loop_count} log({log}) n + {formula2}"
     else:
         formula1 = (inner_loop_count * ((n-i)+1)) + outer_loop_count
         return f"T(n) = {formula1}"

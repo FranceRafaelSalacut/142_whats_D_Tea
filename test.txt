@@ -14,3 +14,8 @@ sum = sum + iters
 statements:
 sum=0
 sum++;
+
+
+
+T(n) = 7 Log(2) n + 9
+T(n) = 7 log(2) n + 9
