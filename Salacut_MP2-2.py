@@ -50,6 +50,8 @@ def output(str:str):
     print(tw.dedent(str.replace(";","")))
 
 def print_statements(STATE, tokenized, line):
+    if "++" in line or "--" in line:
+        tokenized[STATE].append(''.join(line).replace(";","").replace(" ",""))
     for index,token in enumerate(line):
         if token == "=":
             temp = var_name(reversed(line[:index])) + assignment(line[index:])
@@ -57,6 +59,15 @@ def print_statements(STATE, tokenized, line):
             #print(''.join(temp))
             tokenized[STATE].append(''.join(temp))
 
+def get_assignment(line):
+    if ">=" in line:
+        line = line.replace(">","")
+    if "<=" in line:
+        line = line.replace("<","")
+    for index,token in enumerate(line):
+        if token == "=" or token == ">" or token == "<":
+            return int(assignment(line[index:]).replace(token,""))
+        
 def tokenize(str:str) -> dict:
     global CONDITION_COUNT
     #array = statements
@@ -93,11 +104,11 @@ def tokenize(str:str) -> dict:
             content = line[line.index("(")+1 : line.index(")")]
             content = content.split(":")
             equals = content[0].index("=")
-            print("for:")
-            print("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
-            print("condition:" + content[1]) 
-            print("update:" +  content[2])
-            print("for statements:")
+            #print("for:")
+            tokenized[STATE].append("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
+            tokenized[STATE].append("condition:" + content[1]) 
+            tokenized[STATE].append("update:" +  content[2])
+            #print("for statements:")
 
         # checking if there is a print statement or input statement
         elif "cin" in line or "cout" in line:
@@ -116,7 +127,7 @@ def tokenize(str:str) -> dict:
             tokenized[STATE].append(tw.dedent(line).replace(";", ""))
         
         # checking if there is a variable assignment
-        elif "=" in line:
+        elif "=" in line or "--" in line or "++" in line:
             #print(f" this here {line} - {STATE}")
             if STATE == STATEMENT:
                 #STATE = STATEMENT_PRINT
@@ -135,7 +146,9 @@ def tokenize(str:str) -> dict:
 
             if STATE == IF_ELSE:
                 print_statements(STATE, tokenized, line)
-            
+
+            if STATE == FOR:
+                print_statements(STATE, tokenized, line)
 
          # checking for an end of conditional statement
         elif "}" in line: 
@@ -150,8 +163,8 @@ def tokenize(str:str) -> dict:
                 continue
             if STATE == STATEMENT:
                 STATE = STATEMENT_PRINT
-                print("statements:")
-            print(tw.dedent(line).replace(";",""))
+                #print("statements:")
+            #print(tw.dedent(line).replace(";",""))
 
 
     return tokenized
@@ -167,15 +180,22 @@ def operator_count(string, count):
 
 def count_T(token):
     count = 0
+    inner_loop_count = 0
+    outer_loop_count = 0
+    n_value = True
+    i = 0
+    n = 0
     statements = token[STATEMENT]
     If = token[IF]
     If_else = token[IF_ELSE]
     For = token[FOR]
     If_in_for = token[IF_IN_FOR]
 
+    #print(f"{statements}\n{If}\n{If_else}\n{For}\n{If_in_for}\n")
+
     for x in statements:
         #print(x)
-        if "+=" in x or "-=" in x:
+        if "+=" in x or "-=" in x or "--" in x or "++" in x:
             count+=1
         elif "=" in x:
             count+=1
@@ -192,7 +212,7 @@ def count_T(token):
     if if_len > else_len:
         for x in If:
             #print(x)
-            if "+=" in x or "-=" in x:
+            if "+=" in x or "-=" in x or "--" in x or "++" in x:
                 count+=1
             elif ">" in x or "<" in x or ">=" in x or "<=" in x:
                 count+=1
@@ -208,7 +228,7 @@ def count_T(token):
         count+=CONDITION_COUNT
         for x in If_else:
             #print(x)
-            if "+=" in x or "-=" in x:
+            if "+=" in x or "-=" in x or "--" in x or "++" in x:
                 count+=1
             elif "=" in x:
                 count+=1
@@ -219,11 +239,55 @@ def count_T(token):
                 count+=1
             #print(f"count = {count}")
 
+    if not len(For):
+        return f"T(n) = {count}"
     
-    
-    #print(f"{statements}\n{If}\n{If_else}\n{For}\n{If_in_for}\n")
+    for x in For:
+        if "initializer" in x:
+            outer_loop_count+=1
+            i = get_assignment(x)
+        elif "condition" in x:
+            x = x.replace("condition","")
+            outer_loop_count+=1
+            inner_loop_count+=1
+            if ">=" in x or "<=" in x:
+                if "n" not in x:
+                    n_value = False
+                    n = get_assignment(x)
+            else:
+                if "n" in x:
+                    n = -1
+                else:
+                    n_value = False
+                    n = get_assignment(x) - 1
+                
+        elif "update" in x:
+            inner_loop_count+=1
+        else:
+            #print(x)
+            if "+=" in x or "-=" in x or "--" in x or "++" in x:
+                inner_loop_count+=1
+            elif "=" in x:
+                inner_loop_count+=1
+                if re.findall(r'-\s*-\d+|-\d+', x):
+                    inner_loop_count-=1
+                inner_loop_count = operator_count(x, inner_loop_count)
+            elif "cin" in x or "cout" in x:
+                inner_loop_count+=1
+            #print(f"count = {count}")
 
-    return f"T(n) = {count}"
+    #print(f"{inner_loop_count} -- {outer_loop_count} -- {i} -- {n}")
+
+    if n_value:
+        formula1 = (n-i)+1
+        if not formula1:
+            return f"T(n) = {inner_loop_count}n + {outer_loop_count}"
+    else:
+        formula1 = (inner_loop_count * ((n-i)+1)) + outer_loop_count
+        return f"T(n) = {formula1}"
+
+    return 0
+
 
 def main():
     num = int(input())
@@ -240,7 +304,7 @@ def main():
         if ";" in line:
             line = line.replace(";", ";\n")
 
-        if "){" in line:
+        if "){" in line or ") {" in line:
             line = line.replace("){", "){\n")
         elif ")" in line:
             line = line.replace(")", ")\n")
@@ -254,9 +318,7 @@ def main():
         for text in line:
             if text and text.strip():
                 lines.append(text)
-                
     tokens = tokenize(lines)
-
     print(count_T(tokens))
 
 main()
