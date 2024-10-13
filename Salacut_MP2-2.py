@@ -8,6 +8,7 @@ https://www.mygreatlearning.com/blog/python-string-split-method/#:~:text=By%20us
 
 '''
 import textwrap as tw
+import re
 
 # doin states here
 STATEMENT = 1
@@ -16,6 +17,7 @@ IF = 3
 IF_ELSE = 4
 FOR = 5
 IF_IN_FOR = 6
+CONDITION_COUNT = 0
 memory = []
 
 def assignment(str:str):
@@ -47,11 +49,24 @@ def test(x,y):
 def output(str:str):
     print(tw.dedent(str.replace(";","")))
 
+def print_statements(STATE, tokenized, line):
+    for index,token in enumerate(line):
+        if token == "=":
+            temp = var_name(reversed(line[:index])) + assignment(line[index:])
+            #print(f"ff{STATE}")
+            #print(''.join(temp))
+            tokenized[STATE].append(''.join(temp))
 
-def tokenize(str:str) -> list:
+def tokenize(str:str) -> dict:
+    global CONDITION_COUNT
     #array = statements
     STATE = STATEMENT
     skip = 0
+    tokenized = {STATEMENT:[], 
+                 IF: [],
+                 IF_ELSE: [],
+                 FOR: [],
+                 IF_IN_FOR: []}
 
     for line in str:
         # checking for an if statement
@@ -61,14 +76,16 @@ def tokenize(str:str) -> list:
             else:
                 STATE = IF
             skip = 2 if "{" in line else 1
-            print("if:")
-            print("condition: " + line[line.index("(")+1 : line.index(")")])
-            print("if statements:")
+            #print("if:")
+            #print("condition: " + line[line.index("(")+1 : line.index(")")])
+            #print("if statements:")
+            tokenized[STATE].append(line[line.index("(")+1 : line.index(")")])
+            CONDITION_COUNT+=1
 
         elif "else" in line:
             STATE = IF_ELSE
             skip = 2 if "{" in line else 1
-            print("else statements:")
+            #print("else statements:")
         
         elif "for" in line:
             STATE = FOR
@@ -85,8 +102,9 @@ def tokenize(str:str) -> list:
         # checking if there is a print statement or input statement
         elif "cin" in line or "cout" in line:
             if STATE == STATEMENT:
-                STATE = STATEMENT_PRINT
-                print("statements:")
+                #STATE = STATEMENT_PRINT
+                #print("statements:")
+                print_statements(STATE, tokenized, line)
             if skip == 1: 
                 skip = 0
                 if STATE == IF_IN_FOR:
@@ -94,24 +112,30 @@ def tokenize(str:str) -> list:
                     print("for statements continued:")
                 else:
                     STATE = STATEMENT
-            print(tw.dedent(line).replace(";", ""))
+            #print(tw.dedent(line).replace(";", ""))
+            tokenized[STATE].append(tw.dedent(line).replace(";", ""))
         
-        # checking if there is a varibale assignment
+        # checking if there is a variable assignment
         elif "=" in line:
+            #print(f" this here {line} - {STATE}")
             if STATE == STATEMENT:
-                STATE = STATEMENT_PRINT
-                print("statements:")
+                #STATE = STATEMENT_PRINT
+                print_statements(STATE, tokenized, line)
+                #print("statements:")
             if skip == 1: 
+                print_statements(STATE, tokenized, line)
                 skip = 0
                 if STATE == IF_IN_FOR:
                     STATE = FOR
                     print("for statements continued:")
                 else:
                     STATE = STATEMENT
-            for index,token in enumerate(line):
-                if token == "=":
-                    temp = var_name(reversed(line[:index])) + assignment(line[index:])
-                    print(''.join(temp))
+            if STATE == IF:
+                print_statements(STATE, tokenized, line)
+
+            if STATE == IF_ELSE:
+                print_statements(STATE, tokenized, line)
+            
 
          # checking for an end of conditional statement
         elif "}" in line: 
@@ -128,9 +152,78 @@ def tokenize(str:str) -> list:
                 STATE = STATEMENT_PRINT
                 print("statements:")
             print(tw.dedent(line).replace(";",""))
-            test("none", line)
 
 
+    return tokenized
+
+def operator_count(string, count):
+    ops = ["+", "-", "*", "/"]
+
+    for op in ops:
+        if string.count(op):
+            count+=string.count(op)
+
+    return count
+
+def count_T(token):
+    count = 0
+    statements = token[STATEMENT]
+    If = token[IF]
+    If_else = token[IF_ELSE]
+    For = token[FOR]
+    If_in_for = token[IF_IN_FOR]
+
+    for x in statements:
+        #print(x)
+        if "+=" in x or "-=" in x:
+            count+=1
+        elif "=" in x:
+            count+=1
+            if re.findall(r'-\s*-\d+|-\d+', x):
+                count-=1
+            count = operator_count(x, count)
+        elif "cin" in x or "cout" in x:
+            count+=1
+        #print(f"count = {count}")
+
+    if_len = len(If) - CONDITION_COUNT
+    else_len = len(If_else)
+
+    if if_len > else_len:
+        for x in If:
+            #print(x)
+            if "+=" in x or "-=" in x:
+                count+=1
+            elif ">" in x or "<" in x or ">=" in x or "<=" in x:
+                count+=1
+            elif "=" in x:
+                count+=1
+                if re.findall(r'-\s*-\d+|-\d+', x):
+                    count-=1
+                count = operator_count(x, count)
+            elif "cin" in x or "cout" in x:
+                count+=1
+            #print(f"count = {count}")
+    else:
+        count+=CONDITION_COUNT
+        for x in If_else:
+            #print(x)
+            if "+=" in x or "-=" in x:
+                count+=1
+            elif "=" in x:
+                count+=1
+                if re.findall(r'-\s*-\d+|-\d+', x):
+                    count-=1
+                count = operator_count(x, count)
+            elif "cin" in x or "cout" in x:
+                count+=1
+            #print(f"count = {count}")
+
+    
+    
+    #print(f"{statements}\n{If}\n{If_else}\n{For}\n{If_in_for}\n")
+
+    return f"T(n) = {count}"
 
 def main():
     num = int(input())
@@ -162,5 +255,8 @@ def main():
             if text and text.strip():
                 lines.append(text)
                 
-    tokenize(lines)
+    tokens = tokenize(lines)
+
+    print(count_T(tokens))
+
 main()
