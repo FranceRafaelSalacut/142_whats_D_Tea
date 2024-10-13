@@ -9,6 +9,7 @@ https://www.mygreatlearning.com/blog/python-string-split-method/#:~:text=By%20us
 '''
 import textwrap as tw
 import re
+import sympy as sp
 
 # doin states here
 STATEMENT = 1
@@ -52,6 +53,7 @@ def output(str:str):
 def print_statements(STATE, tokenized, line):
     if "++" in line or "--" in line:
         tokenized[STATE].append(''.join(line).replace(";","").replace(" ",""))
+        return
     for index,token in enumerate(line):
         if token == "=":
             if line.count("=") > 1:
@@ -196,6 +198,7 @@ def count_T(token):
     n = 0
     log = 0
     n_dom = 0
+    num_i = 0
     statements = token[STATEMENT]
     If = token[IF]
     If_else = token[IF_ELSE]
@@ -278,6 +281,9 @@ def count_T(token):
             if n <= 1 and i == " n":
                 #print(f"{outer_loop_count} + {count}")
                 return f"T(n) = {outer_loop_count + count}"
+            
+            if x.count("i") > 1:
+                num_i = x.count("i")
                 
         elif "update" in x:
             inner_loop_count+=1
@@ -287,6 +293,8 @@ def count_T(token):
             elif "+=" in x or "-=" in x:
                 n_dom = get_assignment(x)
                 i = 1
+            elif "--" in x:
+                return "infinite"
         else:
             #print(x)
             if "+=" in x or "-=" in x or "--" in x or "++" in x or "*=" in x or "/=" in x:
@@ -303,6 +311,18 @@ def count_T(token):
 
     #print(f"{inner_loop_count} -- {outer_loop_count} -- {i} -- {n} -- {count} -- {log}")
 
+    if num_i:
+        if num_i == 2:
+            return f"T(n) = {inner_loop_count+1} sqrt(n) + {outer_loop_count+1+count}"
+        elif num_i == 3:
+            return f"T(n) = {inner_loop_count+2} cubert(n) + {outer_loop_count+2+count}"
+
+    if not str(i).isnumeric():
+        if n == 0:
+            n = "n"
+        #return f"T(n) = {sp.simplify(inner_loop_count*((sp.symbols('n'))-sp.symbols(i)+1) + outer_loop_count + count)}".replace("*","")
+        return f"not"
+    
     if n_value:
         if not log:
             if not n_dom:
