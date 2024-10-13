@@ -65,6 +65,7 @@ def print_statements(STATE, tokenized, line):
             tokenized[STATE].append(''.join(temp))
 
 def get_assignment(line):
+    print(line)
     if ">=" in line:
         line = line.replace(">","")
     if "<=" in line:
@@ -199,6 +200,7 @@ def count_T(token):
     log = 0
     n_dom = 0
     num_i = 0
+    temp = None
     statements = token[STATEMENT]
     If = token[IF]
     If_else = token[IF_ELSE]
@@ -271,9 +273,12 @@ def count_T(token):
                 if "n" not in x:
                     n_value = False
                     n = get_assignment(x)
+                else:
+                    temp = x
             else:
                 if "n" in x:
                     n = -1
+                    temp = "= n-1"
                 else:
                     n_value = False
                     n = get_assignment(x) - 1
@@ -318,10 +323,14 @@ def count_T(token):
             return f"T(n) = {inner_loop_count+2} cubert(n) + {outer_loop_count+2+count}"
 
     if not str(i).isnumeric():
-        if n == 0:
-            n = "n"
-        #return f"T(n) = {sp.simplify(inner_loop_count*((sp.symbols('n'))-sp.symbols(i)+1) + outer_loop_count + count)}".replace("*","")
-        return f"not"
+        n = get_assignment(temp)
+        inner_loop_count = operator_count(n, inner_loop_count)
+        outer_loop_count = operator_count(n, outer_loop_count)
+        outer_loop_count = operator_count(i, outer_loop_count)
+        n = sp.simplify(n)
+        i = sp.simplify(i)
+        print(i)
+        return f"T(n) = {sp.simplify(inner_loop_count*(n-i+1) + outer_loop_count + count)}".replace("*","")
     
     if n_value:
         if not log:
