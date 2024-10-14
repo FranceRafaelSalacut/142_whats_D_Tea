@@ -179,9 +179,11 @@ def tokenize(str:str) -> dict:
     return tokenized
 
 def operator_count(string, count):
+    string = str(string)
     ops = ["+", "-", "*", "/", "="]
     itertr = ["+=","-=", "*=", "/=", "++", "--"]
     for itr in itertr:
+        #print(f"itr {itr} == string {string}")
         if itr in string:
             string = string.replace(itr,"")
     for op in ops:
@@ -265,6 +267,7 @@ def count_T(token):
         if "initializer" in x:
             outer_loop_count+=1
             i = get_assignment(x)
+            outer_loop_count = operator_count(i, outer_loop_count)
         elif "condition" in x:
             x = x.replace("condition","")
             outer_loop_count+=1
@@ -277,6 +280,9 @@ def count_T(token):
                     temp = x
             else:
                 if "n" in x:
+                    n = get_assignment(x)
+                    inner_loop_count = operator_count(n, inner_loop_count)
+                    outer_loop_count = operator_count(n, outer_loop_count)
                     n = -1
                     temp = "= n-1"
                 else:
@@ -324,14 +330,8 @@ def count_T(token):
 
     if not str(i).isnumeric():
         n = get_assignment(temp)
-        if n != " n-1":
-            #print(f"here {n}")
-            inner_loop_count = operator_count(n, inner_loop_count)
-            outer_loop_count = operator_count(n, outer_loop_count)
-        outer_loop_count = operator_count(i, outer_loop_count)
         n = sp.simplify(n)
         i = sp.simplify(i)
-        #print(i)
         #print(f"{inner_loop_count} -- {outer_loop_count} -- {i} -- {n} -- {count} -- {log}")
         return f"T(n) = {sp.simplify(inner_loop_count*(n-i+1) + outer_loop_count + count)}".replace("*","")
     
@@ -374,7 +374,6 @@ def count_T(token):
         return f"T(n) = {formula1}"
 
     return 0
-
 
 def main():
     num = int(input())
