@@ -1,0 +1,35 @@
+Failed tests
+Test 33: 16
+Test 34: 16-2
+Test 33: 16
+Incorrect program output
+--- Input ---
+3
+for (int i = 1; i <= n; i--) {
+    a = 2 * b;
+}
+
+--- Program output ---
+T(n) = 4n + 2
+
+--- Expected output (text)---
+infinite
+
+Test 34: 16-2
+Incorrect program output
+--- Input ---
+3
+for (int i = 3; i <= n; i--) {
+    a = 2 * b;
+}
+
+--- Program output ---
+T(n) = 4n - 6
+
+--- Expected output (text)---
+infinite
+
+Summary of tests
++------------------------------+
+| 42 tests run/40 tests passed |
++------------------------------+

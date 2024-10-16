@@ -1,0 +1,223 @@
+Failed tests
+Test 31: 15
+Test 32: 15-2
+Test 35: 17
+Test 36: 17-2
+Test 37: 18
+Test 38: 18-2
+Test 39: 19
+Test 40: 19-2
+Test 41: 20
+Test 42: 20-2
+Test 31: 15
+Incorrect program output
+--- Input ---
+4
+for (int i = 1; i * i <= n; i++) {
+    a = 2 * b;
+    a = a + c + f;
+}
+
+--- Program output ---
+T(n) = 7n + 2
+
+--- Expected output (exact text)---
+T(n) = 8 sqrt(n) + 3
+
+Test 32: 15-2
+Incorrect program output
+--- Input ---
+4
+for (int i = 1; i * i <= n; i++) {
+    a = 2 * b;
+    b = i;
+}
+
+--- Program output ---
+T(n) = 5n + 2
+
+--- Expected output (exact text)---
+T(n) = 6 sqrt(n) + 3
+
+Test 35: 17
+Incorrect program output
+--- Input ---
+4
+for (int i = 1; i * i * i <= n; i++) {
+    b += a;
+    a--;
+}
+
+--- Program output ---
+T(n) = 4n + 2
+
+--- Expected output (exact text)---
+T(n) = 6 cubert(n) + 4
+
+Test 36: 17-2
+Incorrect program output
+--- Input ---
+6
+a = b = 0;
+for (int i = 1; i * i * i <= n; i++) {
+    b += a;
+    b = a*i + a--;
+}
+a = b = 0;
+
+--- Program output ---
+T(n) = 7n + 6
+
+--- Expected output (exact text)---
+T(n) = 9 cubert(n) + 8
+
+Test 37: 18
+Incorrect program output
+--- Input ---
+4
+for (int i = m; i <= n; i++) {
+    b += a;
+    a--;
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10201/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10201/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10201/Salacut_MP2-2.py", line 341, in count_T
+    formula1 = (n-i)+1
+                ~^~
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+
+--- Expected output (regular expression)---
+T\(n\) = *4n \- 4m \+ 6|T\(n\) = *\- 4m \+ 4n \+ 6|T\(n\) = *\-4m \+ 4n \+ 6
+
+Test 38: 18-2
+Incorrect program output
+--- Input ---
+5
+a = b = 0;
+for (int i =x; i <= n; i++) {
+    b += a;
+    a=a--;
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10201/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10201/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10201/Salacut_MP2-2.py", line 341, in count_T
+    formula1 = (n-i)+1
+                ~^~
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+
+--- Expected output (regular expression)---
+T\(n\) = *5n \- 5x \+ 9|T\(n\) = *\- 5x \+ 5n \+ 9|T\(n\) = *\-5x \+ 5n \+ 9
+
+Test 39: 19
+Incorrect program output
+--- Input ---
+4
+for (int i = m-1; i <= n+1; i++) {
+    b += a;
+    a--;
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10201/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10201/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10201/Salacut_MP2-2.py", line 341, in count_T
+    formula1 = (n-i)+1
+                ~^~
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+
+--- Expected output (regular expression)---
+T\(n\) = *5n \- 5m \+ 19|T\(n\) = *\- 5m \+ 5n \+ 19|T\(n\) = *\-5m \+ 5n \+ 19
+
+Test 40: 19-2
+Incorrect program output
+--- Input ---
+4
+for (int i = y-1; i <= n+1; i++) {
+    b += a;
+    a = a--;
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10201/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10201/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10201/Salacut_MP2-2.py", line 341, in count_T
+    formula1 = (n-i)+1
+                ~^~
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+
+--- Expected output (regular expression)---
+T\(n\) = *6n \- 6y \+ 22|T\(n\) = *\- 6y \+ 6n \+ 22|T\(n\) = *\-6y \+ 6n \+ 22
+
+Test 41: 20
+Incorrect program output
+--- Input ---
+4
+for (int i = m-3; i < n; i++) {
+    b += a;
+    a--;
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10201/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10201/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10201/Salacut_MP2-2.py", line 341, in count_T
+    formula1 = (n-i)+1
+                ~^~
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+
+--- Expected output (regular expression)---
+T\(n\) = *4n \- 4m \+ 15|T\(n\) = *\-4m \+ 4n \+ 15|T\(n\) = *\- 4m \+ 4n \+ 15
+
+Test 42: 20-2
+Incorrect program output
+--- Input ---
+5
+a = b = 0;
+for (int i = z-3; i < n; i++) {
+    b = b += a;
+    a--;
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10201/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10201/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10201/Salacut_MP2-2.py", line 341, in count_T
+    formula1 = (n-i)+1
+                ~^~
+TypeError: unsupported operand type(s) for -: 'int' and 'str'
+
+--- Expected output (regular expression)---
+T\(n\) = *5n \- 5z \+ 20|T\(n\) = *\-5z \+ 5n \+ 20|T\(n\) = *\- 5z \+ 5n \+ 20
+
+Summary of tests
++------------------------------+
+| 42 tests run/32 tests passed |
++------------------------------+

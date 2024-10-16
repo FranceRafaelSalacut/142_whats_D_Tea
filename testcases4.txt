@@ -1,0 +1,391 @@
+Failed tests
+Test 9: 4
+Test 10: 4-2
+Test 11: 5
+Test 12: 5-2
+Test 17: 8
+Test 18: 8-2
+Test 19: 9
+Test 20: 9-2
+Test 21: 10
+Test 22: 10-2
+Test 23: 11
+Test 24: 11-2
+Test 25: 12
+Test 26: 12-2
+Test 27: 13
+Test 28: 13-2
+Test 29: 14
+Test 30: 14-2
+Test 31: 15
+Test 32: 15-2
+Test 9: 4
+Incorrect program output
+--- Input ---
+3
+for (int i = 1; i <= 10; i++) {
+    a = 2 * b;
+}
+
+--- Program output ---
+T(n) = 4n + 2
+
+--- Expected output (exact text)---
+T(n) = 42
+
+Test 10: 4-2
+Incorrect program output
+--- Input ---
+3
+for (int i = 1; i < 19; i++) {
+    a = 2 * b + i/i;
+}
+
+--- Program output ---
+T(n) = 6n - 4
+
+--- Expected output (exact text)---
+T(n) = 110
+
+Test 11: 5
+Incorrect program output
+--- Input ---
+4
+for (int i = 5; i <= 10; i++) {
+    b += a;
+    a--;
+}
+
+--- Program output ---
+T(n) = 4n - 14
+
+--- Expected output (exact text)---
+T(n) = 26
+
+Test 12: 5-2
+Incorrect program output
+--- Input ---
+4
+for (int i = 3; i < 6; i++) {
+    b += a;
+    a--; b--;
+}
+
+--- Program output ---
+T(n) = 5n - 13
+
+--- Expected output (exact text)---
+T(n) = 17
+
+Test 17: 8
+Incorrect program output
+--- Input ---
+5
+for (int i = 1; i <= n; i *= 2) {
+    b += a;
+    a--;
+    a = b + c + f;
+}
+
+--- Program output ---
+T(n) = 7n + 2
+
+--- Expected output (exact text)---
+T(n) = 7 log(2) n + 9
+
+Test 18: 8-2
+Incorrect program output
+--- Input ---
+6
+for (int i = 1; i <= n; i *= 2) {
+    b += a;
+    a--;
+    a = b + c;
+}
+a = b = c;
+
+--- Program output ---
+T(n) = 6n + 4
+
+--- Expected output (exact text)---
+T(n) = 6 log(2) n + 10
+
+Test 19: 9
+Incorrect program output
+--- Input ---
+7
+for (int i = 1; i <= n; i *= 5) {
+    a = 2 * b;
+    a = a + c + f;
+    b *= 3 + c;
+    b += a;
+    a--;
+}
+
+--- Program output ---
+T(n) = 11n + 2
+
+--- Expected output (exact text)---
+T(n) = 11 log(5) n + 13
+
+Test 20: 9-2
+Incorrect program output
+--- Input ---
+7
+for (int i = 1; i <= n; i *= 10) {
+    a = 2 * b;
+    a = a + c;
+    b *= 3 + c;
+    b += a;
+    a--;
+}
+
+--- Program output ---
+T(n) = 10n + 2
+
+--- Expected output (exact text)---
+T(n) = 10 log(10) n + 12
+
+Test 21: 10
+Incorrect program output
+--- Input ---
+5
+for (int i = 3; i <= n; i *= 5) {
+    a = 2 * b;
+    b *= 3 + c;
+    a--;
+}
+
+--- Program output ---
+T(n) = 7n - 12
+
+--- Expected output (regular expression)---
+T\(n\) = 7 log\(5\) n \+ 2|T\(n\) = 7 log\(5\) n \+ 9
+
+Test 22: 10-2
+Incorrect program output
+--- Input ---
+5
+for (int i = 3; i <= n; i *= 7) {
+    a = 2 * b;
+    b *= 3;
+    a--;
+}
+
+--- Program output ---
+T(n) = 6n - 10
+
+--- Expected output (regular expression)---
+T\(n\) = 6 log\(7\) n \+ 2|T\(n\) = 6 log\(7\) n \+ 8
+
+Test 23: 11
+Incorrect program output
+--- Input ---
+6
+for (int i = 1; i <= n; i += 5) {
+    b += a;
+    a--;
+    a = b + c + f;
+    b--;
+}
+
+--- Program output ---
+T(n) = 8n + 2
+
+--- Expected output (regular expression)---
+T\(n\) = 8n\/5 \+ 2|T\(n\) = 8n\/5 \+ 10
+
+Test 24: 11-2
+Incorrect program output
+--- Input ---
+6
+for (int i = 1; i <= n; i += 4) {
+    b += a;
+    a--;
+    a = b + c + f -i;
+    b--;
+}
+
+--- Program output ---
+T(n) = 9n + 2
+
+--- Expected output (regular expression)---
+T\(n\) = 9n\/4 \+ 2|T\(n\) = 9n\/4 \+ 11
+
+Test 25: 12
+Incorrect program output
+--- Input ---
+6
+a = b = 10;
+for (int i = 2; i <= n; i += 5) {
+    b += a;
+    a--;
+    a = b + c + f;
+}
+
+--- Program output ---
+T(n) = 7n - 3
+
+--- Expected output (regular expression)---
+T\(n\) = 7n\/5 \+ 4|T\(n\) = 7n\/5 \+ 11
+
+Test 26: 12-2
+Incorrect program output
+--- Input ---
+7
+a = b = c = 100;
+for (int i = 2; i <= n; i += 5) {
+    b += a;
+    a--;
+    a = b + c + f;
+}
+a = b=c=0;
+
+--- Program output ---
+T(n) = 7n + 1
+
+--- Expected output (regular expression)---
+T\(n\) = 7n\/5 \+ 8|T\(n\) = 7n\/5 \+ 15
+
+Test 27: 13
+Incorrect program output
+--- Input ---
+3
+for (int i = n; i <= 1; i--) {
+
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10034/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10034/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 329, in count_T
+    inner_loop_count = operator_count(n, inner_loop_count)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 185, in operator_count
+    if itr in string:
+       ^^^^^^^^^^^^^
+TypeError: argument of type 'int' is not iterable
+
+--- Expected output (exact text)---
+T(n) = 2
+
+Test 28: 13-2
+Incorrect program output
+--- Input ---
+4
+for (int i = n; i <= 1; i--) {
+    a = b = c + 9 - 7*c;
+}
+a = b = c =0;
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10034/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10034/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 329, in count_T
+    inner_loop_count = operator_count(n, inner_loop_count)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 185, in operator_count
+    if itr in string:
+       ^^^^^^^^^^^^^
+TypeError: argument of type 'int' is not iterable
+
+--- Expected output (exact text)---
+T(n) = 5
+
+Test 29: 14
+Incorrect program output
+--- Input ---
+4
+for (int i = n; i < 1; i /= 3) {
+    a = 2 * b;
+    b *= 3 + c;
+}
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10034/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10034/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 326, in count_T
+    n = get_assignment(temp)
+        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 69, in get_assignment
+    if ">=" in line:
+       ^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+
+--- Expected output (exact text)---
+T(n) = 2
+
+Test 30: 14-2
+Incorrect program output
+--- Input ---
+5
+for (int i = n; i < 1; i /=105) {
+    a = 2 * b;
+    b *= 3 + c;
+}
+a = b = c = 10*2;
+
+--- Program output ---
+Traceback (most recent call last):
+  File "/home/p10034/Salacut_MP2-2.py", line 411, in <module>
+    main()
+  File "/home/p10034/Salacut_MP2-2.py", line 409, in main
+    print(count_T(tokens))
+          ^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 326, in count_T
+    n = get_assignment(temp)
+        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/p10034/Salacut_MP2-2.py", line 69, in get_assignment
+    if ">=" in line:
+       ^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+
+--- Expected output (exact text)---
+T(n) = 6
+
+Test 31: 15
+Incorrect program output
+--- Input ---
+4
+for (int i = 1; i * i <= n; i++) {
+    a = 2 * b;
+    a = a + c + f;
+}
+
+--- Program output ---
+T(n) = 7n + 2
+
+--- Expected output (exact text)---
+T(n) = 8 sqrt(n) + 3
+
+Test 32: 15-2
+Incorrect program output
+--- Input ---
+4
+for (int i = 1; i * i <= n; i++) {
+    a = 2 * b;
+    b = i;
+}
+
+--- Program output ---
+T(n) = 5n + 2
+
+--- Expected output (exact text)---
+T(n) = 6 sqrt(n) + 3
+
+Summary of tests
++------------------------------+
+| 42 tests run/16 tests passed |
++------------------------------+
