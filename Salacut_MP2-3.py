@@ -203,17 +203,35 @@ def check_for(For):
 def find_loops(For):
     For_loops = []
     temp = []
-    for x in For:
+    temp1 = []
+    outer_loop = 0
+    inner_loop = False
+    for index,x in enumerate(For):
         if "initializer" in x:
+            if (index - outer_loop) == 3:
+                #print("progress") 
+                inner_loop = True
+                temp1.append(x)
+                continue
+            outer_loop = index
             if temp:
                 For_loops.append(temp)
             temp = []
             temp.append(x)
+        elif inner_loop == True:
+            temp1.append(x)
         else:
             temp.append(x)
-    For_loops.append(temp)
+
+        if index+1 == len(For):
+            if temp1:
+                temp.append(temp1)
+            For_loops.append(temp)
+    
+    print(For_loops)
 
     return For_loops
+    #return []
 
 def count_T_Fors(For, count):
     For_loops = find_loops(For)
@@ -267,7 +285,7 @@ def count_T_For(For, count):
 
             if n <= 1 and i == " n":
                 #print(f"{outer_loop_count} + {count}")
-                return f"T(n) = {outer_loop_count + count}"
+                return f"{outer_loop_count + count}"
             
             if x.count("i") > 1:
                 num_i = x.count("i")
@@ -282,6 +300,8 @@ def count_T_For(For, count):
                 i = 1
             elif "--" in x:
                 return "infinite"
+        elif type(x) == list:
+            inner_loop_count+=(int(count_T_For(x,0)))
         else:
             #print(x)
             if "+=" in x or "-=" in x or "--" in x or "++" in x or "*=" in x or "/=" in x:
@@ -300,9 +320,9 @@ def count_T_For(For, count):
 
     if num_i:
         if num_i == 2:
-            return f"T(n) = {inner_loop_count+1} sqrt(n) + {outer_loop_count+1+count}"
+            return f"{inner_loop_count+1} sqrt(n) + {outer_loop_count+1+count}"
         elif num_i == 3:
-            return f"T(n) = {inner_loop_count+2} cubert(n) + {outer_loop_count+2+count}"
+            return f"{inner_loop_count+2} cubert(n) + {outer_loop_count+2+count}"
 
     if not str(i).isnumeric():
         n = get_assignment(temp)
@@ -315,14 +335,14 @@ def count_T_For(For, count):
         i = sp.simplify(i)
         #print(i)
         #print(f"{inner_loop_count} -- {outer_loop_count} -- {i} -- {n} -- {count} -- {log}")
-        return f"T(n) = {sp.simplify(inner_loop_count*(n-i+1) + outer_loop_count + count)}".replace("*","")
+        return f"{sp.simplify(inner_loop_count*(n-i+1) + outer_loop_count + count)}".replace("*","")
     
     if n_value:
         if not log:
             if not n_dom:
                 formula1 = (n-i)+1
                 if not formula1:
-                    return f"T(n) = {inner_loop_count}n + {outer_loop_count + count}"
+                    return f"{inner_loop_count}n + {outer_loop_count + count}"
                 else:
                     formula2 = inner_loop_count * formula1
                     formula2 = formula2 + outer_loop_count + count
@@ -332,11 +352,11 @@ def count_T_For(For, count):
                         sign = "-"
                         formula2 = formula2 * -1
 
-                    return f"T(n) = {inner_loop_count}n {sign} {formula2}"
+                    return f"{inner_loop_count}n {sign} {formula2}"
             else:
                 formula1 = (n-i+1)
                 if not formula1:
-                    return f"T(n) = {inner_loop_count}n/{n_dom} + {outer_loop_count + count}"
+                    return f"{inner_loop_count}n/{n_dom} + {outer_loop_count + count}"
                 else:
                     formula2 = inner_loop_count * formula1
                     formula2 = formula2 + outer_loop_count + count
@@ -346,14 +366,14 @@ def count_T_For(For, count):
                         sign = "-"
                         formula2 = formula2 * -1
 
-                    return f"T(n) = {inner_loop_count}n/{n_dom} {sign} {formula2}"
+                    return f"{inner_loop_count}n/{n_dom} {sign} {formula2}"
         else:
             formula1 = (n-i+1)
             formula2 = (inner_loop_count*formula1) + outer_loop_count + count
-            return f"T(n) = {inner_loop_count} log({log}) n + {formula2}"
+            return f"{inner_loop_count} log({log}) n + {formula2}"
     else:
         formula1 = (inner_loop_count * ((n-i)+1)) + outer_loop_count
-        return f"T(n) = {formula1}"
+        return f"{formula1}"
 
 def count_T(token):
     count = 0
@@ -422,7 +442,7 @@ def count_T(token):
         return count_T_Fors(For, count)
         
     
-    return count_T_For(For, count)
+    return f"T(n) = {count_T_For(For, count)}"
     
     return 0
 
