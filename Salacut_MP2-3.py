@@ -152,17 +152,27 @@ def tokenize(str:str) -> dict:
                 print_statements(STATE, tokenized, line)
             if skip == 1 and inner_skip == 0: 
                 skip = 0
+                inner_loop_flag = False
                 if STATE == IF_IN_FOR:
                     STATE = FOR
                     print("for statements continued:")
                 else:
                     STATE = STATEMENT
 
-            if inner_skip == 1:
-                inner_skip = 0
-                inner_for.append(tw.dedent(line).replace(";", ""))
-                tokenized[STATE].append(inner_for)
-                inner_for.clear()
+            if inner_skip:
+                if inner_skip == 1:
+                    inner_skip = 0
+                    inner_for.append(tw.dedent(line).replace(";", ""))
+                    tokenized[STATE].append(inner_for)
+                    inner_for = []
+
+                    if skip == 1:
+                        skip = 0
+                        inner_loop_flag = False
+                        STATE = STATEMENT
+                else:
+                    inner_for.append(tw.dedent(line).replace(";", ""))
+
             else:
                 #print(tw.dedent(line).replace(";", ""))
                 tokenized[STATE].append(tw.dedent(line).replace(";", ""))
@@ -177,6 +187,7 @@ def tokenize(str:str) -> dict:
             if skip == 1 and inner_skip == 0: 
                 print_statements(STATE, tokenized, line)
                 skip = 0
+                inner_loop_flag = False
                 if STATE == IF_IN_FOR:
                     STATE = FOR
                     print("for statements continued:")
@@ -189,23 +200,37 @@ def tokenize(str:str) -> dict:
                 print_statements(STATE, tokenized, line)
 
             if STATE == FOR:
-                if inner_skip == 1:
-                    inner_skip = 0
-                    inner_for = print_statements(STATE, inner_for, line, True)
-                    tokenized[STATE].append(inner_for)
-                    inner_for = []
+                if inner_skip:
+                    if inner_skip == 1:
+                        inner_skip = 0
+                        inner_for = print_statements(STATE, inner_for, line, True)
+                        tokenized[STATE].append(inner_for)
+                        inner_for = []
+
+                        if skip == 1:
+                            skip = 0
+                            inner_loop_flag = False
+                            STATE = STATEMENT
+                    else:
+                        inner_for = print_statements(STATE, inner_for, line, True)
+
                 else:
                     print_statements(STATE, tokenized, line, False)
 
          # checking for an end of conditional statement
         elif "}" in line: 
-            if skip and not inner_skip:
+            if skip == 2 and inner_skip == 0:
+                inner_loop_flag = False
                 skip = 0
 
-            if inner_skip:
+            if inner_skip == 2:
                 inner_skip = 0
                 tokenized[STATE].append(inner_for)
-                inner_for.clear()
+                inner_for = []
+
+                if skip == 1:
+                    skip = 0
+                    STATE = STATEMENT
 
             if STATE == IF_IN_FOR:
                 STATE = FOR
@@ -219,6 +244,7 @@ def tokenize(str:str) -> dict:
                 STATE = STATEMENT_PRINT
                 #print("statements:")
             #print(tw.dedent(line).replace(";",""))
+            
 
 
     return tokenized
@@ -267,18 +293,17 @@ def count_T_Fors(For, count):
 
     for x in For_loops:
         T_n = count_T_For(x, 0)
-        T_n = T_n.replace("T(n) = ", "")
-        T_n = T_n.replace("n", "*n")
         counted+=sp.simplify(T_n)
 
     counted+=sp.simplify(count)
 
     counted = str(counted)
+    counted = counted.replace("**","^")
     counted = counted.replace("*","")
     return f"T(n) = {counted}"
 
 def count_T_For(For, count):
-    inner_loop_count = 0
+    inner_loop_count = sp.simplify(0)
     outer_loop_count = 0
     n_value = True
     i = 0
@@ -327,7 +352,7 @@ def count_T_For(For, count):
             elif "--" in x:
                 return "infinite"
         elif type(x) == list:
-            inner_loop_count+=(int(count_T_For(x,0)))
+            inner_loop_count+=(sp.simplify(count_T_For(x,0)))
         else:
             #print(x)
             if "+=" in x or "-=" in x or "--" in x or "++" in x or "*=" in x or "/=" in x:
@@ -368,7 +393,9 @@ def count_T_For(For, count):
             if not n_dom:
                 formula1 = (n-i)+1
                 if not formula1:
-                    return f"{inner_loop_count}n + {outer_loop_count + count}"
+                    en = sp.symbols('n')
+                    #return f"{inner_loop_count}n + {outer_loop_count + count}"
+                    return sp.expand((inner_loop_count*en) + outer_loop_count + count)
                 else:
                     formula2 = inner_loop_count * formula1
                     formula2 = formula2 + outer_loop_count + count
@@ -398,7 +425,7 @@ def count_T_For(For, count):
             formula2 = (inner_loop_count*formula1) + outer_loop_count + count
             return f"{inner_loop_count} log({log}) n + {formula2}"
     else:
-        formula1 = (inner_loop_count * ((n-i)+1)) + outer_loop_count
+        formula1 = (inner_loop_count * ((n-i)+1)) + outer_loop_count + count
         return f"{formula1}"
 
 def count_T(token):
@@ -466,9 +493,12 @@ def count_T(token):
     
     if check_for(For):
         return count_T_Fors(For, count)
-        
     
-    return f"T(n) = {count_T_For(For, count)}"
+    tempo = count_T_For(For, count)
+    tempo = str(tempo)
+    tempo = tempo.replace("**","^")
+    tempo = tempo.replace("*","")
+    return f"T(n) = {tempo}"
     
     return 0
 
