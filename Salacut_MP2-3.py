@@ -50,19 +50,29 @@ def test(x,y):
 def output(str:str):
     print(tw.dedent(str.replace(";","")))
 
-def print_statements(STATE, tokenized, line):
+def print_statements(STATE, tokenized, line, inner_for_loop=False):
     if "++" in line or "--" in line:
+        if inner_for_loop:
+            tokenized.append(''.join(line).replace(";","").replace(" ",""))
         tokenized[STATE].append(''.join(line).replace(";","").replace(" ",""))
         return
     for index,token in enumerate(line):
         if token == "=":
             if line.count("=") > 1:
+                if inner_for_loop:
+                    tokenized.append(''.join(line))
                 tokenized[STATE].append(''.join(line))
                 return
             temp = var_name(reversed(line[:index])) + assignment(line[index:])
             #print(f"ff{STATE}")
             #print(''.join(temp))
-            tokenized[STATE].append(''.join(temp))
+            if inner_for_loop: 
+                tokenized.append(''.join(temp))
+            else:
+                tokenized[STATE].append(''.join(temp))
+
+    if inner_for_loop:
+        return tokenized
 
 def get_assignment(line):
     #print(line)
@@ -82,6 +92,9 @@ def tokenize(str:str) -> dict:
     #array = statements
     STATE = STATEMENT
     skip = 0
+    inner_loop_flag = False
+    inner_skip = 0
+    inner_for = []
     tokenized = {STATEMENT:[], 
                  IF: [],
                  IF_ELSE: [],
@@ -109,14 +122,26 @@ def tokenize(str:str) -> dict:
         
         elif "for" in line:
             STATE = FOR
-            skip = 2 if "{" in line else 1
             content = line[line.index("(")+1 : line.index(")")]
             content = content.split(":")
             equals = content[0].index("=")
+
+            if inner_loop_flag:
+                inner_skip = 2 if "{" in line else 1
+                inner_loop_flag = False
+                inner_for.append("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
+                inner_for.append("condition:" + content[1]) 
+                inner_for.append("update:" +  content[2])
+            else:
+                skip = 2 if "{" in line else 1
+                tokenized[STATE].append("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
+                tokenized[STATE].append("condition:" + content[1]) 
+                tokenized[STATE].append("update:" +  content[2])
+                inner_loop_flag = True
+            
+            
             #print("for:")
-            tokenized[STATE].append("initializer: " + var_name(reversed(content[0][:equals])) + assignment(content[0][equals:]))
-            tokenized[STATE].append("condition:" + content[1]) 
-            tokenized[STATE].append("update:" +  content[2])
+            
             #print("for statements:")
 
         # checking if there is a print statement or input statement
@@ -125,15 +150,22 @@ def tokenize(str:str) -> dict:
                 #STATE = STATEMENT_PRINT
                 #print("statements:")
                 print_statements(STATE, tokenized, line)
-            if skip == 1: 
+            if skip == 1 and inner_skip == 0: 
                 skip = 0
                 if STATE == IF_IN_FOR:
                     STATE = FOR
                     print("for statements continued:")
                 else:
                     STATE = STATEMENT
-            #print(tw.dedent(line).replace(";", ""))
-            tokenized[STATE].append(tw.dedent(line).replace(";", ""))
+
+            if inner_skip == 1:
+                inner_skip = 0
+                inner_for.append(tw.dedent(line).replace(";", ""))
+                tokenized[STATE].append(inner_for)
+                inner_for.clear()
+            else:
+                #print(tw.dedent(line).replace(";", ""))
+                tokenized[STATE].append(tw.dedent(line).replace(";", ""))
         
         # checking if there is a variable assignment
         elif "=" in line or "--" in line or "++" in line:
@@ -142,7 +174,7 @@ def tokenize(str:str) -> dict:
                 #STATE = STATEMENT_PRINT
                 print_statements(STATE, tokenized, line)
                 #print("statements:")
-            if skip == 1: 
+            if skip == 1 and inner_skip == 0: 
                 print_statements(STATE, tokenized, line)
                 skip = 0
                 if STATE == IF_IN_FOR:
@@ -157,11 +189,24 @@ def tokenize(str:str) -> dict:
                 print_statements(STATE, tokenized, line)
 
             if STATE == FOR:
-                print_statements(STATE, tokenized, line)
+                if inner_skip == 1:
+                    inner_skip = 0
+                    inner_for = print_statements(STATE, inner_for, line, True)
+                    tokenized[STATE].append(inner_for)
+                    inner_for = []
+                else:
+                    print_statements(STATE, tokenized, line, False)
 
          # checking for an end of conditional statement
         elif "}" in line: 
-            skip = 0
+            if skip and not inner_skip:
+                skip = 0
+
+            if inner_skip:
+                inner_skip = 0
+                tokenized[STATE].append(inner_for)
+                inner_for.clear()
+
             if STATE == IF_IN_FOR:
                 STATE = FOR
                 print("for statements continued:")
@@ -203,35 +248,16 @@ def check_for(For):
 def find_loops(For):
     For_loops = []
     temp = []
-    temp1 = []
-    outer_loop = 0
-    inner_loop = False
-    for index,x in enumerate(For):
+    for x in For:
         if "initializer" in x:
-            if (index - outer_loop) == 3:
-                #print("progress") 
-                inner_loop = True
-                temp1.append(x)
-                continue
-            outer_loop = index
             if temp:
                 For_loops.append(temp)
             temp = []
             temp.append(x)
-        elif inner_loop == True:
-            temp1.append(x)
         else:
             temp.append(x)
-
-        if index+1 == len(For):
-            if temp1:
-                temp.append(temp1)
-            For_loops.append(temp)
-    
-    print(For_loops)
-
+    For_loops.append(temp)
     return For_loops
-    #return []
 
 def count_T_Fors(For, count):
     For_loops = find_loops(For)
